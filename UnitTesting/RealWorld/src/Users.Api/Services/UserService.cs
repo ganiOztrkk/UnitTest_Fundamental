@@ -1,12 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using Users.Api.DTOs;
+using Users.Api.Logging;
 using Users.Api.Models;
 using Users.Api.Repositories;
 
 namespace Users.Api.Services;
 
-public sealed class UserService(IUserRepository userRepository, ILogger<User> _logger) : IUserService
+public sealed class UserService(IUserRepository userRepository, ILoggerAdapter<UserService> _logger) : IUserService
 {
     private readonly IUserRepository _userRepository = userRepository;
 
