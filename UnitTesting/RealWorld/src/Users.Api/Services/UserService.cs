@@ -4,6 +4,7 @@ using Users.Api.DTOs;
 using Users.Api.Logging;
 using Users.Api.Models;
 using Users.Api.Repositories;
+using ValidationException = FluentValidation.ValidationException;
 
 namespace Users.Api.Services;
 
@@ -61,11 +62,8 @@ public sealed class UserService(IUserRepository userRepository, ILoggerAdapter<U
             throw new ValidationException(string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage)));
         }
 
-        User user = new()
-        {
-            Id = Guid.NewGuid(),
-            FullName = request.FullName
-        };
+        User user = CreateUserDtoToUserObject(request);
+        
         _logger.LogInformation("Creating user with id: {0} and name: {1}", user.Id, user.FullName);
         var stopWatch = Stopwatch.StartNew();
         try
@@ -83,6 +81,15 @@ public sealed class UserService(IUserRepository userRepository, ILoggerAdapter<U
             stopWatch.Stop();
             _logger.LogInformation("User with id: {0} created in {1}ms", user.Id, stopWatch.ElapsedMilliseconds);
         }
+    }
+
+    public User CreateUserDtoToUserObject(CreateUserDto request)
+    {
+        User user = new()
+        {
+            FullName = request.FullName
+        };
+        return user;
     }
 
     public async Task<bool> DeleteByIdAsync(Guid id, CancellationToken cancellationToken = default)

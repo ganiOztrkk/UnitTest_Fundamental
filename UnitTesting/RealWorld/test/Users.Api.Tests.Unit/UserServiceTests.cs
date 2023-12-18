@@ -1,8 +1,9 @@
 using FluentAssertions;
+using FluentValidation;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using NSubstitute.ReceivedExtensions;
 using NSubstitute.ReturnsExtensions;
+using Users.Api.DTOs;
 using Users.Api.Logging;
 using Users.Api.Models;
 using Users.Api.Repositories;
@@ -22,6 +23,7 @@ public class UserServiceTests
         _sut = new(_userRepository, _logger);
     }
 
+    #region GetAllTests
     //getall start
     [Fact]
     public async Task GetAllAsync_ShouldReturnEmptyList_WhenNoUsersExist()
@@ -92,9 +94,13 @@ public class UserServiceTests
             .LogError(Arg.Is(exception), Arg.Is("Something went wrong while listing users."));
     }
     //getall end
-
     
-    //getbyid start
+
+    #endregion
+
+
+    #region GeyByIdTests
+//getbyid start
     [Fact]
     public async Task GetByIdAsync_ShouldReturnNull_WhenNoUsersExists()
     {
@@ -166,4 +172,23 @@ public class UserServiceTests
                 Arg.Is("Something went wrong while getting user."));
     }
     //getbyid end
+    #endregion
+
+    #region CreateAsync
+
+    [Fact]
+    public async Task CreateAsync_ShouldThrownAnError_WhenUserCreateDetailsAreNotValid()
+    {
+        //arrange
+        CreateUserDto request = new("");
+        //act
+        var action = async () => await _sut.CreateAsync(request);
+        //assert
+        await action
+            .Should()
+            .ThrowAsync<ValidationException>();
+    }
+
+    
+    #endregion
 }
